@@ -9,8 +9,8 @@ import time
 import httpx
 
 TEXTO = (
-    "Paciente com dor toracica intensa e sudorese. "
-    "ECG com supradesnivel. Suspeita de sindrome coronariana aguda."
+    "Myocardial infarction with ST elevation and elevated cardiac enzymes. "
+    "Coronary angiography showed occlusion of the left anterior descending artery."
 )
 
 

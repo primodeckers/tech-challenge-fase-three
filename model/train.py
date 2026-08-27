@@ -1,4 +1,4 @@
-"""Treina o classificador de urgencia (TF-IDF + regressao logistica)."""
+"""Treina o classificador de abstracts medicos (TF-IDF + regressao logistica)."""
 
 from __future__ import annotations
 
@@ -22,16 +22,21 @@ def treinar() -> None:
     df = pd.read_csv(DATA_PATH)
     x_train, x_test, y_train, y_test = train_test_split(
         df["texto"],
-        df["urgencia"],
+        df["label"],
         test_size=0.2,
         random_state=SEED,
-        stratify=df["urgencia"],
+        stratify=df["label"],
     )
     pipe = Pipeline(
         [
             (
                 "tfidf",
-                TfidfVectorizer(ngram_range=(1, 2), min_df=2, max_features=15000),
+                TfidfVectorizer(
+                    ngram_range=(1, 2),
+                    min_df=2,
+                    max_features=15000,
+                    stop_words="english",
+                ),
             ),
             (
                 "clf",

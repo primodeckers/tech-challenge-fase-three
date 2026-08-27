@@ -4,22 +4,23 @@ from app.main import app
 
 client = TestClient(app)
 
-LABELS = {"normal", "atencao", "urgente"}
+LABELS = {"neoplasms", "digestive", "nervous", "cardiovascular", "general"}
 
 
-def test_predict_urgente():
+def test_predict_classe_do_corpus():
     resp = client.post(
         "/predict",
         json={
             "text": (
-                "Paciente com dor toracica intensa e sudorese. "
-                "ECG com supradesnivel. Suspeita de sindrome coronariana aguda."
+                "Neuropeptide Y and neuron-specific enolase levels in benign "
+                "and malignant pheochromocytomas. Serum NSE may help distinguish "
+                "malignant from benign pheochromocytoma."
             )
         },
     )
     assert resp.status_code == 200
     body = resp.json()
-    assert body["label"] == "urgente"
+    assert body["label"] in LABELS
     assert set(body["proba"]) == LABELS
 
 

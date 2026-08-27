@@ -43,6 +43,26 @@ docker run --rm -p 8000:8000 triagem-laudos
 pytest
 ```
 
+Push no GitHub roda **lint** (ruff) e **pytest**.
+
+## Airflow
+
+Retreino: `load_data` -> `train` -> `save_model`.
+
+```bash
+docker compose up --build -d
+```
+
+UI em http://localhost:8080 (admin / admin). Dispara a DAG:
+
+```bash
+docker compose exec airflow airflow dags trigger treino_laudos
+```
+
+```bash
+docker compose down
+```
+
 ## Latencia
 
 Com a API no ar:
@@ -55,6 +75,6 @@ Baseline no Docker (n=200): media 3.12 ms, P50 3.10 ms, P95 3.44 ms. A etapa 4 c
 
 ## Arquitetura
 
-Triagem de laudo precisa de resposta na hora, entao a inferencia e tempo real (API HTTP). Batch nao serve. O retreino e que pode ser job (Airflow, etapa 2).
+Triagem de laudo precisa de resposta na hora, entao a inferencia e tempo real (API HTTP). Batch nao serve. O retreino fica no Airflow (DAG `treino_laudos`).
 
 Pra nuvem eu iria de Cloud Run no GCP: e o mesmo container Docker desta API, sobe com HTTP, escala e nao deixa VM ligada o dia inteiro. SageMaker/Vertex e overkill (e caro) pra TF-IDF. Se fosse AWS, ECR + ECS Fargate. Dado e publico (abstracts), sem prontuario identificavel.

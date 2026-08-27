@@ -1,6 +1,7 @@
 from datetime import datetime
 from pathlib import Path
 import os
+import sys
 
 from airflow import DAG
 from airflow.operators.python import PythonOperator
@@ -20,10 +21,19 @@ def load_data():
     print(f"linhas={len(df)}")
 
 
+def train_model():
+    sys.path.insert(0, str(PROJECT))
+    from model.train import treinar
+
+    treinar()
+
+
 with DAG(
     dag_id="treino_laudos",
     start_date=datetime(2024, 1, 1),
     schedule=None,
     catchup=False,
 ) as dag:
-    PythonOperator(task_id="load_data", python_callable=load_data)
+    carrega = PythonOperator(task_id="load_data", python_callable=load_data)
+    treina = PythonOperator(task_id="train", python_callable=train_model)
+    carrega >> treina

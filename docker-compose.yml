@@ -13,4 +13,4 @@ services:
     volumes:
       - ./airflow/dags:/opt/airflow/dags
       - .:/opt/airflow/project
-    command: standalone
+    command: /start.sh

@@ -1,0 +1,9 @@
+.venv
+__pycache__
+planejamento
+tech-challeng-three
+.claude
+.git
+tests
+data
+model

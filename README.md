@@ -55,4 +55,4 @@ O hospital precisa da classe na hora, entao a inferencia e tempo real (API HTTP)
 
 Pra nuvem eu iria de Cloud Run no GCP: e o mesmo container Docker desta API, sobe com HTTP, escala e nao deixa VM ligada o dia inteiro. SageMaker/Vertex e overkill (e caro) pra TF-IDF. Se fosse AWS, ECR + ECS Fargate. Dado da entrega e sintetico, sem prontuario real.
 
-Localmente a entrega e o container. Baseline de latencia (API local, n=200): media 2.57 ms, P50 2.58 ms, P95 2.92 ms. O numero no Docker entra quando a imagem estiver no ar; a etapa 4 compara com o modelo otimizado.
+Localmente a entrega e o container. Baseline no Docker (n=200): media 2.79 ms, P50 2.77 ms, P95 3.07 ms. Fora do container ficou parecido (P50 2.58 ms / P95 2.92 ms). A etapa 4 compara isso com o modelo otimizado.

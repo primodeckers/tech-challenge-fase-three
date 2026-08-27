@@ -1,6 +1,15 @@
 # Tech Challenge Fase 3
 
-API pra classificar laudo medico em `normal`, `atencao` ou `urgente`. Modelo leve (TF-IDF + regressao logistica) servido com FastAPI.
+API que classifica abstract/laudo medico. Modelo leve (TF-IDF + regressao logistica) no FastAPI.
+
+Dataset: **Medical Abstracts TC Corpus** (o do guia da FIAP; Kaggle / [GitHub](https://github.com/sebischair/Medical-Abstracts-TC-Corpus)). 14.438 textos, coluna de texto + target. Classes: `neoplasms`, `digestive`, `nervous`, `cardiovascular`, `general`.
+
+Pra baixar de novo:
+
+```bash
+python model/prepare_dataset.py
+python model/train.py
+```
 
 ## Como rodar
 
@@ -12,13 +21,6 @@ python -m venv .venv
 pip install -r requirements.txt
 ```
 
-Dataset e modelo ja estao no repo. Se quiser gerar de novo:
-
-```bash
-python model/generate_dataset.py
-python model/train.py
-```
-
 Sobe a API:
 
 ```bash
@@ -26,7 +28,7 @@ uvicorn app.main:app --host 0.0.0.0 --port 8000
 ```
 
 - Health: `GET http://localhost:8000/health`
-- Predicao: `POST http://localhost:8000/predict` com `{"text": "laudo..."}`
+- Predicao: `POST http://localhost:8000/predict` com `{"text": "abstract..."}`
 
 ## Docker
 
@@ -49,10 +51,10 @@ Com a API no ar:
 python model/benchmark.py --n 200
 ```
 
+Baseline no Docker (n=200): media 3.12 ms, P50 3.10 ms, P95 3.44 ms. A etapa 4 compara com o modelo otimizado.
+
 ## Arquitetura
 
-O hospital precisa da classe na hora, entao a inferencia e tempo real (API HTTP). Batch nao serve pra triagem. O retreino e que pode ser job (Airflow, etapa 2).
+Triagem de laudo precisa de resposta na hora, entao a inferencia e tempo real (API HTTP). Batch nao serve. O retreino e que pode ser job (Airflow, etapa 2).
 
-Pra nuvem eu iria de Cloud Run no GCP: e o mesmo container Docker desta API, sobe com HTTP, escala e nao deixa VM ligada o dia inteiro. SageMaker/Vertex e overkill (e caro) pra TF-IDF. Se fosse AWS, ECR + ECS Fargate. Dado da entrega e sintetico, sem prontuario real.
-
-Localmente a entrega e o container. Baseline no Docker (n=200): media 2.79 ms, P50 2.77 ms, P95 3.07 ms. Fora do container ficou parecido (P50 2.58 ms / P95 2.92 ms). A etapa 4 compara isso com o modelo otimizado.
+Pra nuvem eu iria de Cloud Run no GCP: e o mesmo container Docker desta API, sobe com HTTP, escala e nao deixa VM ligada o dia inteiro. SageMaker/Vertex e overkill (e caro) pra TF-IDF. Se fosse AWS, ECR + ECS Fargate. Dado e publico (abstracts), sem prontuario identificavel.

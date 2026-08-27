@@ -28,6 +28,13 @@ def train_model():
     treinar()
 
 
+def save_model():
+    path = PROJECT / "artifacts" / "model.joblib"
+    if not path.exists() or path.stat().st_size == 0:
+        raise FileNotFoundError(path)
+    print(f"modelo ok: {path} ({path.stat().st_size} bytes)")
+
+
 with DAG(
     dag_id="treino_laudos",
     start_date=datetime(2024, 1, 1),
@@ -36,4 +43,5 @@ with DAG(
 ) as dag:
     carrega = PythonOperator(task_id="load_data", python_callable=load_data)
     treina = PythonOperator(task_id="train", python_callable=train_model)
-    carrega >> treina
+    salva = PythonOperator(task_id="save_model", python_callable=save_model)
+    carrega >> treina >> salva

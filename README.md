@@ -48,3 +48,11 @@ Com a API no ar:
 ```bash
 python model/benchmark.py --n 200
 ```
+
+## Arquitetura
+
+O hospital precisa da classe na hora, entao a inferencia e tempo real (API HTTP). Batch nao serve pra triagem. O retreino e que pode ser job (Airflow, etapa 2).
+
+Pra nuvem eu iria de Cloud Run no GCP: e o mesmo container Docker desta API, sobe com HTTP, escala e nao deixa VM ligada o dia inteiro. SageMaker/Vertex e overkill (e caro) pra TF-IDF. Se fosse AWS, ECR + ECS Fargate. Dado da entrega e sintetico, sem prontuario real.
+
+Localmente a entrega e o container. Baseline de latencia (API local, n=200): media 2.57 ms, P50 2.58 ms, P95 2.92 ms. O numero no Docker entra quando a imagem estiver no ar; a etapa 4 compara com o modelo otimizado.

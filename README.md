@@ -83,6 +83,8 @@ python model/gerar_trafego.py --n 200
 
 3 paineis: total de requisicoes, latencia P95 e taxa de erro (4xx/5xx).
 
+Prints da stack rodando: [docs/monitoramento.md](docs/monitoramento.md).
+
 ## Latencia
 
 Com a API no ar:

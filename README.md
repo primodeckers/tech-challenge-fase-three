@@ -102,3 +102,9 @@ Baseline no Docker (n=200): media 3.12 ms, P50 3.10 ms, P95 3.44 ms. A etapa 4 c
 Triagem de laudo precisa de resposta na hora, entao a inferencia e tempo real (API HTTP). Batch nao serve. O retreino fica no Airflow (DAG `treino_laudos`).
 
 Pra nuvem eu iria de Cloud Run no GCP: e o mesmo container Docker desta API, sobe com HTTP, escala e nao deixa VM ligada o dia inteiro. SageMaker/Vertex e overkill (e caro) pra TF-IDF. Se fosse AWS, ECR + ECS Fargate. Dado e publico (abstracts), sem prontuario identificavel.
+
+## Limitacoes
+
+- Accuracy de 0.57 no holdout (5 classes reais). E um modelo leve (TF-IDF + regressao logistica) de proposito, nao um transformer — o foco do projeto e o ciclo de vida (CI/CD, retreino, monitoramento, latencia), nao o estado da arte em NLP.
+- A classe `general` e ruidosa: junta abstracts que nao caem claramente nas outras 4 especialidades, entao concentra boa parte dos erros de classificacao.
+- Split treino/teste e treino do modelo usam seed fixa (`random_state=42` em `model/train.py`), entao o resultado e reproduzivel rodando `python model/train.py` de novo.

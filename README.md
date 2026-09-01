@@ -4,6 +4,8 @@ API que classifica abstract/laudo medico. Modelo leve (TF-IDF + regressao logist
 
 Dataset: **Medical Abstracts TC Corpus** (o do guia da FIAP; Kaggle / [GitHub](https://github.com/sebischair/Medical-Abstracts-TC-Corpus)). 14.438 textos, coluna de texto + target. Classes: `neoplasms`, `digestive`, `nervous`, `cardiovascular`, `general`.
 
+O guia fala em triagem de urgencia (normal / atencao / urgente), mas esse corpus nao vem com rotulo de urgencia — vem com especialidade/condicao clinica. Optei por manter as classes originais em vez de inventar um mapeamento arbitrario pra urgencia (isso ia distorcer o rotulo real sem base clinica nenhuma). Na pratica o classificador resolve a primeira parte do problema de triagem: pra qual especialidade o laudo deveria ir. Um segundo classificador de severidade dentro de cada especialidade ficaria pra uma iteracao futura, fora do escopo desse projeto.
+
 Pra baixar de novo:
 
 ```bash

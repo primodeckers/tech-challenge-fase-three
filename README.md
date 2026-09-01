@@ -63,6 +63,26 @@ docker compose exec airflow airflow dags trigger treino_laudos
 docker compose down
 ```
 
+## Monitoramento
+
+`docker-compose.yml` sobe a api, o prometheus e o grafana junto com o airflow:
+
+```bash
+docker compose up --build -d
+```
+
+- API: http://localhost:8000
+- Prometheus: http://localhost:9090
+- Grafana: http://localhost:3000 (admin / admin), dashboard "Triagem de laudos" ja provisionado
+
+Pra popular os graficos:
+
+```bash
+python model/gerar_trafego.py --n 200
+```
+
+3 paineis: total de requisicoes, latencia P95 e taxa de erro (4xx/5xx).
+
 ## Latencia
 
 Com a API no ar:

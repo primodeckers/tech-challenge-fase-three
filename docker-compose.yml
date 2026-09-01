@@ -4,6 +4,15 @@ services:
     ports:
       - "8000:8000"
 
+  prometheus:
+    image: prom/prometheus:v2.55.1
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+    depends_on:
+      - api
+
   airflow:
     build: ./airflow
     ports:

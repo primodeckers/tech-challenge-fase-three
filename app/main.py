@@ -1,7 +1,10 @@
+import os
 import time
 from pathlib import Path
 
 import joblib
+import numpy as np
+import onnxruntime as ort
 from fastapi import FastAPI, Request
 from prometheus_client import CONTENT_TYPE_LATEST, Counter, Histogram, generate_latest
 from pydantic import BaseModel, Field
@@ -9,9 +12,22 @@ from starlette.responses import Response
 
 ROOT = Path(__file__).resolve().parents[1]
 MODEL_PATH = ROOT / "artifacts" / "model.joblib"
+ONNX_PATH = ROOT / "artifacts" / "model.onnx"
+CLASSES_PATH = ROOT / "artifacts" / "classes.joblib"
+USAR_ONNX = os.getenv("MODEL_RUNTIME", "onnx") != "sklearn"
 
 app = FastAPI(title="Triagem de laudos")
-model = joblib.load(MODEL_PATH)
+
+if USAR_ONNX:
+    sessao = ort.InferenceSession(str(ONNX_PATH), providers=["CPUExecutionProvider"])
+    INPUT_NAME = sessao.get_inputs()[0].name
+    CLASSES = [str(c) for c in joblib.load(CLASSES_PATH)]
+    modelo_sklearn = None
+else:
+    sessao = None
+    INPUT_NAME = ""
+    modelo_sklearn = joblib.load(MODEL_PATH)
+    CLASSES = [str(c) for c in modelo_sklearn.classes_]
 
 REQUESTS = Counter(
     "http_requests_total", "Total de requisicoes", ["endpoint", "method", "status"]
@@ -43,9 +59,19 @@ class PredictOut(BaseModel):
     proba: dict[str, float]
 
 
+def classificar(texto: str) -> tuple[str, dict[str, float]]:
+    if sessao is not None:
+        rotulo, proba = sessao.run(None, {INPUT_NAME: np.array([[texto]])})
+        scores = {cls: float(p) for cls, p in zip(CLASSES, proba[0])}
+        return str(rotulo[0]), scores
+    proba = modelo_sklearn.predict_proba([texto])[0]
+    scores = {str(cls): float(p) for cls, p in zip(modelo_sklearn.classes_, proba)}
+    return max(scores, key=scores.get), scores
+
+
 @app.get("/health")
 def health():
-    return {"status": "ok"}
+    return {"status": "ok", "runtime": "onnx" if USAR_ONNX else "sklearn"}
 
 
 @app.get("/metrics")
@@ -55,7 +81,5 @@ def metrics():
 
 @app.post("/predict", response_model=PredictOut)
 def predict(body: PredictIn):
-    proba = model.predict_proba([body.text])[0]
-    scores = {str(cls): float(p) for cls, p in zip(model.classes_, proba)}
-    label = max(scores, key=scores.get)
+    label, scores = classificar(body.text)
     return PredictOut(label=label, proba=scores)

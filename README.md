@@ -11,6 +11,7 @@ Pra baixar de novo:
 ```bash
 python model/prepare_dataset.py
 python model/train.py
+python model/export_onnx.py
 ```
 
 ## Como rodar
@@ -89,13 +90,28 @@ Prints da stack rodando: [docs/monitoramento.md](docs/monitoramento.md).
 
 ## Latencia
 
-Com a API no ar:
+A API usa ONNX Runtime por padrao. O joblib do sklearn fica no repo pra comparar. Inferencia local (n=200 textos do corpus, sem HTTP):
+
+| runtime | media | P50 | P95 |
+|---|---|---|---|
+| sklearn | 0.76 ms | 0.75 ms | 0.94 ms |
+| onnx | 0.15 ms | 0.14 ms | 0.20 ms |
+
+HTTP local (n=200, mesmo texto no `/predict`):
+
+| runtime | media | P50 | P95 |
+|---|---|---|---|
+| sklearn | 2.63 ms | 2.57 ms | 3.06 ms |
+| onnx | 1.88 ms | 1.85 ms | 2.19 ms |
+
+ONNX ficou ~5x mais rapido na inferencia. No HTTP a diferenca e menor porque entra FastAPI/rede. Pra repetir:
 
 ```bash
+python model/compare_latency.py
 python model/benchmark.py --n 200
 ```
 
-Baseline no Docker (n=200): media 3.12 ms, P50 3.10 ms, P95 3.44 ms. A etapa 4 compara com o modelo otimizado.
+Sklearn no HTTP: `MODEL_RUNTIME=sklearn uvicorn app.main:app --port 8001`.
 
 ## Arquitetura
 

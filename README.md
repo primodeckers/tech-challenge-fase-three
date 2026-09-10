@@ -56,7 +56,7 @@ Retreino: `load_data` -> `train` -> `save_model`.
 docker compose up --build -d
 ```
 
-UI em http://localhost:8080 (admin / admin). Dispara a DAG:
+UI em http://localhost:8081 (admin / admin). Dispara a DAG:
 
 ```bash
 docker compose exec airflow airflow dags trigger treino_laudos

@@ -6,6 +6,11 @@ Dataset: **Medical Abstracts TC Corpus** (o que o enunciado da FIAP sugere; Kagg
 
 O enunciado fala em triagem de urgencia (normal / atencao / urgente), mas esse corpus nao vem com rotulo de urgencia — vem com especialidade/condicao clinica. Optei por manter as classes originais em vez de inventar um mapeamento arbitrario pra urgencia (isso ia distorcer o rotulo real sem base clinica nenhuma). Na pratica o classificador resolve a primeira parte do problema de triagem: pra qual especialidade o laudo deveria ir. Um segundo classificador de severidade dentro de cada especialidade ficaria pra uma iteracao futura, fora do escopo desse projeto.
 
+Video STAR (ate 5 min): https://www.youtube.com/watch?v=mnWF6gW0ro0
+Arquivo no repo: [docs/Triagem_Médica_Automatizada.mp4](docs/Triagem_Médica_Automatizada.mp4)
+
+Dados da entrega (GitHub, video, URLs, senhas): [ENTREGA.txt](ENTREGA.txt)
+
 Pra baixar de novo:
 
 ```bash

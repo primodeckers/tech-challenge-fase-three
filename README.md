@@ -14,7 +14,64 @@ python model/train.py
 python model/export_onnx.py
 ```
 
-## Como rodar
+## Como usar
+
+Precisa de Docker. Na pasta do repo:
+
+```bash
+docker compose up --build -d
+```
+
+Sobe API, Prometheus, Grafana e Airflow. Espera uns minutos na primeira vez (build).
+
+| Servico | URL | usuario | senha |
+|---|---|---|---|
+| API | http://localhost:8000 | — | — |
+| API docs | http://localhost:8000/docs | — | — |
+| Prometheus | http://localhost:9090 | — | — |
+| Grafana | http://localhost:3000 | `admin` | `admin` |
+| Airflow | http://localhost:8081 | `admin` | `admin` |
+
+Airflow esta na **8081** de proposito: a 8080 no host costuma estar ocupada. Grafana e Airflow pedem login; Prometheus e a API nao.
+
+Health e predicao:
+
+```bash
+curl http://localhost:8000/health
+```
+
+```bash
+curl -X POST http://localhost:8000/predict -H "Content-Type: application/json" -d "{\"text\": \"Myocardial infarction with ST elevation and elevated cardiac enzymes.\"}"
+```
+
+Body: `{"text": "..."}`. Resposta: `label` + `proba` (`neoplasms`, `digestive`, `nervous`, `cardiovascular`, `general`).
+
+No Grafana, abre o dashboard **Triagem de laudos** (ja vem provisionado). Pra os graficos mexerem:
+
+```bash
+python -m venv .venv
+.venv/Scripts/activate
+pip install -r requirements.txt
+python model/gerar_trafego.py --n 200
+```
+
+3 paineis: total de requisicoes, latencia P95 e taxa de erro. Prints: [docs/monitoramento.md](docs/monitoramento.md).
+
+Retreino no Airflow (DAG `treino_laudos`: `load_data` -> `train` -> `save_model`):
+
+```bash
+docker compose exec airflow airflow dags trigger treino_laudos
+```
+
+Ou dispara pelo botao na UI.
+
+Pra desligar:
+
+```bash
+docker compose down
+```
+
+### Sem Docker (so a API)
 
 Python 3.12.
 
@@ -22,71 +79,23 @@ Python 3.12.
 python -m venv .venv
 .venv/Scripts/activate
 pip install -r requirements.txt
-```
-
-Sobe a API:
-
-```bash
 uvicorn app.main:app --host 0.0.0.0 --port 8000
 ```
 
-- Health: `GET http://localhost:8000/health`
-- Predicao: `POST http://localhost:8000/predict` com `{"text": "abstract..."}`
-
-## Docker
-
-```bash
-docker build -t triagem-laudos .
-docker run --rm -p 8000:8000 triagem-laudos
-```
-
-## Testes
+### Testes
 
 ```bash
 pytest
 ```
 
-Push no GitHub roda **lint** (ruff) e **pytest**.
+Push no GitHub roda lint (ruff) e pytest.
 
-## Airflow
-
-Retreino: `load_data` -> `train` -> `save_model`.
+### So a imagem da API
 
 ```bash
-docker compose up --build -d
+docker build -t triagem-laudos .
+docker run --rm -p 8000:8000 triagem-laudos
 ```
-
-UI em http://localhost:8081 (admin / admin). Dispara a DAG:
-
-```bash
-docker compose exec airflow airflow dags trigger treino_laudos
-```
-
-```bash
-docker compose down
-```
-
-## Monitoramento
-
-`docker-compose.yml` sobe a api, o prometheus e o grafana junto com o airflow:
-
-```bash
-docker compose up --build -d
-```
-
-- API: http://localhost:8000
-- Prometheus: http://localhost:9090
-- Grafana: http://localhost:3000 (admin / admin), dashboard "Triagem de laudos" ja provisionado
-
-Pra popular os graficos:
-
-```bash
-python model/gerar_trafego.py --n 200
-```
-
-3 paineis: total de requisicoes, latencia P95 e taxa de erro (4xx/5xx).
-
-Prints da stack rodando: [docs/monitoramento.md](docs/monitoramento.md).
 
 ## Latencia
 

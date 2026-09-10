@@ -40,4 +40,5 @@ services:
     volumes:
       - ./airflow/dags:/opt/airflow/dags
       - .:/opt/airflow/project
-    command: /start.sh
+    entrypoint: ["/usr/bin/dumb-init", "--"]
+    command: ["/start.sh"]
